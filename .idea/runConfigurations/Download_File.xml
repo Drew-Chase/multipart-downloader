@@ -2,6 +2,7 @@
   <configuration default="false" name="Download File" type="CargoCommandRunConfiguration" factoryName="Cargo Command" folderName="Examples">
     <option name="buildProfileId" value="dev" />
     <option name="command" value="run --example download_file" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$/dev-env/download_file" />
     <envs />
     <option name="emulateTerminal" value="true" />
     <option name="channel" value="DEFAULT" />
