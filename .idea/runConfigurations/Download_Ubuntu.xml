@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Download Ubuntu" type="CargoCommandRunConfiguration" factoryName="Cargo Command" folderName="CLI">
     <option name="buildProfileId" value="dev" />
-    <option name="command" value="run --bin multipart-downloader -- --url https://bungi.mm.fcix.net/ubuntu-releases/24.04.1/ubuntu-24.04.1-desktop-amd64.iso --parts 20 -o ubuntu.iso" />
+    <option name="command" value="run --bin multipart-downloader -- --url https://bungi.mm.fcix.net/ubuntu-releases/24.04.1/ubuntu-24.04.1-desktop-amd64.iso --parts 20 -o ./ubuntu-24.04.iso" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$/target/dev-env" />
     <envs />
     <option name="emulateTerminal" value="true" />
