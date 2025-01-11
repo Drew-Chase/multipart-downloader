@@ -58,7 +58,7 @@ fn draw_progress_bar(percentage: f64, speed: u64, total_size: u64, downloaded: u
 
 fn get_formated_bytes(bytes: u64) -> String {
     let mut bytes = bytes as f64;
-    let units = ["BB", "KB", "MB", "GB", "TB"];
+    let units = ["B", "KB", "MB", "GB", "TB"];
     let mut unit_index = 0;
     while bytes > 1024.0 && unit_index < units.len() - 1 {
         bytes /= 1024.0;
