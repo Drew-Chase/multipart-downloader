@@ -4,9 +4,9 @@ import {faBug, faHeart, faX} from "@fortawesome/free-solid-svg-icons";
 import {faSquare, faWindowMinimize} from "@fortawesome/free-regular-svg-icons";
 import {getCurrentWindow} from "@tauri-apps/api/window";
 import {open} from "@tauri-apps/plugin-shell";
-import PSTooltip from "./Extended/PSTooltip.tsx";
+import PSTooltip from "./variants/PSTooltip.tsx";
 import {faGithub} from "@fortawesome/free-brands-svg-icons";
-import {getRealTheme, Themes, useTheme} from "../providers/Theme.tsx";
+import {getRealTheme, Themes, useTheme} from "../providers/ThemeProvider.tsx";
 import {Icon} from "@iconify-icon/react";
 
 export default function ActionBar()
