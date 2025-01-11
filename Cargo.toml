@@ -1,2 +1,3 @@
 [workspace]
-members = ["multipart-downloader-cli", "multipart-downloader-lib"]
+resolver = "2"
+members = ["multipart-downloader-cli", "multipart-downloader-lib", "multipart-downloader-app/src-tauri"]
