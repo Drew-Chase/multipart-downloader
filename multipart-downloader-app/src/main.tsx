@@ -6,32 +6,35 @@ import {NextUIProvider} from "@nextui-org/react";
 
 import "./assets/scss/index.scss";
 import Home from "./assets/pages/Home.tsx";
-import About from "./assets/pages/About.tsx";
-import Navigation from "./assets/components/Navigation.tsx";
-import {applyTheme} from "./assets/ts/Theme.ts";
+import ActionBar from "./assets/components/ActionBar.tsx";
+import {ThemeProvider} from "./assets/providers/Theme.tsx";
 
 
 ReactDOM.createRoot($("#root")[0]!).render(
     <React.StrictMode>
         <BrowserRouter>
-            <MainContentRenderer/>
+            <ThemeProvider>
+                <MainContentRenderer/>
+            </ThemeProvider>
         </BrowserRouter>
     </React.StrictMode>
 );
 
 export function MainContentRenderer()
 {
-    applyTheme();
     const navigate = useNavigate();
     return (
         <NextUIProvider navigate={navigate}>
-            <Navigation/>
-            <Routes>
-                <Route>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/about" element={<About/>}/>
-                </Route>
-            </Routes>
+            <main className={"flex flex-col"}>
+                <ActionBar/>
+                <div className={"flex flex-row w-full max-h-[calc(100vh-2.5rem)] h-screen overflow-y-auto"}>
+                    <Routes>
+                        <Route>
+                            <Route path="/" element={<Home/>}/>
+                        </Route>
+                    </Routes>
+                </div>
+            </main>
         </NextUIProvider>
     );
 }
