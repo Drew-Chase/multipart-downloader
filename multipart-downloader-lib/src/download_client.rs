@@ -1,8 +1,10 @@
 #[cfg(not(feature = "log"))]
+#[allow(unused_imports)]
 pub use crate::log_stub::*;
 use anyhow::{Context, Result};
 use http::HeaderMap;
 #[cfg(feature = "log")]
+#[allow(unused_imports)]
 use log::*;
 use reqwest::Client;
 use std::ops::AddAssign;
