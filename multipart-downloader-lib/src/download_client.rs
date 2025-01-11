@@ -37,6 +37,7 @@ struct DownloadPart {
     part_number: u16,
     bytes_start: u64,
     bytes_end: u64,
+    proxy: Option<String>,
 }
 
 impl Default for DownloadClient {
@@ -221,10 +222,18 @@ impl DownloadClient {
         start_time: Instant,
     ) -> Result<()> {
         let temp_file_path = filename.with_extension(format!("part{}", part.part_number));
-
+        
+        let client = if let Some(proxy) = &part.proxy {
+          Client::builder()
+              .proxy(reqwest::Proxy::all(proxy)?)
+              .build()
+              .context(format!("Failed to create client with proxy: {}", proxy))?
+        }else{
+            self.client.clone()
+        };
+        
         // Send an async HTTP GET request with a Range header
-        let response = self
-            .client
+        let response = client
             .get(url)
             .header(
                 "Range",
@@ -335,6 +344,7 @@ impl DownloadClient {
 
         let mut result = Vec::with_capacity(self.parts as usize);
         let mut bytes_start: u64 = 0;
+        let mut proxy_index = 0;
 
         // Distribute file parts
         for index in 0..self.parts {
@@ -343,11 +353,22 @@ impl DownloadClient {
                 .checked_add(part_size)
                 .and_then(|val| val.checked_sub(1))
                 .ok_or_else(|| anyhow::anyhow!("Overflow when calculating bytes_end"))?;
+            let proxy: Option<String> = if let Some(proxies) = &self.proxies {
+                if proxy_index > proxies.len() {
+                    proxy_index = 0;
+                }
+                let proxy = Some(proxies[proxy_index].clone());
+                proxy_index += 1;
+                proxy
+            } else {
+                None
+            };
 
             result.push(DownloadPart {
                 part_number: index,
                 bytes_start,
                 bytes_end,
+                proxy,
             });
 
             // Prepare for the next part
