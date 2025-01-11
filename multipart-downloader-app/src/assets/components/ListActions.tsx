@@ -1,12 +1,14 @@
 import {cn, Divider} from "@nextui-org/react";
 import {Icon} from "@iconify-icon/react";
-import PSButton from "./Extended/PSButton.tsx";
-import PSInput from "./Extended/PSInput.tsx";
 import {useEffect, useState} from "react";
 import $ from "jquery";
+import PSButton from "./variants/PSButton.tsx";
+import PSInput from "./variants/PSInput.tsx";
+import {useSettingsModal} from "../providers/SettingsModalProvider.tsx";
 
 export default function ListActions()
 {
+    const {open} = useSettingsModal();
     return (
         <div className={"flex flex-row pb-2 border-b-1 border-foreground/20 gap-4"}>
             <PSInput
@@ -32,7 +34,7 @@ export default function ListActions()
                 <Divider orientation={"vertical"} className={"h-1/2 my-auto"}/>
                 <div className={"flex flex-row gap-1"}>
                     <ActionButton icon={"mage:trash"} label={"Clear Queue"} onClick={() => console.log("Clear Queue action triggered")}/>
-                    <ActionButton icon={"mage:settings"} label={"Settings"} onClick={() => console.log("Settings action triggered")}/>
+                    <ActionButton icon={"mage:settings"} label={"Settings"} onClick={open}/>
                     <ActionButton icon={"mage:file-download"} label={"Export List"} onClick={() => console.log("Export List action triggered")}/>
                 </div>
             </div>
@@ -58,7 +60,7 @@ function ActionButton({icon, label, onClick}: { icon: string, label: string, onC
     }, []);
 
     return (
-        <PSButton id={id} key={id} variant={"light"} className={"flex flex-col gap-1 h-full"} onPress={onClick} data-hover={hover}>
+        <PSButton id={id} key={id} variant={"light"} className={"flex flex-col gap-1 h-full"} onPress={onClick} data-hover={hover} aria-label={label}>
 
             <Icon
                 icon={icon}
