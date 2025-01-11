@@ -7,6 +7,7 @@ use http::HeaderMap;
 #[allow(unused_imports)]
 use log::*;
 use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use std::ops::AddAssign;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
@@ -23,7 +24,7 @@ pub struct DownloadClient {
     proxies: Option<Vec<String>>,
 }
 
-#[derive(Default, Debug, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct DownloadProgress {
     pub bytes_downloaded: u64,
     pub total_bytes: u64,
@@ -113,12 +114,16 @@ impl DownloadClient {
         &self,
         url: impl AsRef<str>,
         file_path: impl AsRef<str>,
-        callback: impl Fn(DownloadProgress) + Send + Sync + 'static + Copy,
+        callback: impl Fn(DownloadProgress) + Send + Sync + 'static,
     ) -> Result<()> {
         let url = url.as_ref();
 
         let headers = self.get_headers(url).await?;
         let file_path = PathBuf::from(file_path.as_ref());
+        let directory = file_path
+            .parent()
+            .context("Failed to get parent directory")?;
+        std::fs::create_dir_all(directory).context("Failed to create directory")?;
 
         // Get the total file size for progress tracking
         let file_size = self.get_content_length(&headers).await?;
