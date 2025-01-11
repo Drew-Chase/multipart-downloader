@@ -16,7 +16,6 @@ use tokio::time::Instant;
 pub struct DownloadClient {
     client: Client,
     parts: u16,
-    concurrent_downloads: u16,
     preallocate_space: bool,
     parts_temp_dir: Option<PathBuf>,
     proxies: Option<Vec<String>>,
@@ -42,7 +41,6 @@ impl Default for DownloadClient {
         Self {
             client: Client::new(),
             parts: 10,
-            concurrent_downloads: 10,
             proxies: None,
             preallocate_space: false,
             parts_temp_dir: None,
@@ -60,10 +58,6 @@ impl DownloadClient {
     }
     pub fn with_parts(&mut self, parts: u16) -> &mut Self {
         self.parts = parts;
-        self
-    }
-    pub fn with_concurrent_downloads(&mut self, concurrent_downloads: u16) -> &mut Self {
-        self.concurrent_downloads = concurrent_downloads;
         self
     }
 
@@ -116,22 +110,13 @@ impl DownloadClient {
     pub async fn download(
         &self,
         url: impl AsRef<str>,
-        directory: impl AsRef<Path>,
-        filename: Option<String>,
+        file_path: impl AsRef<str>,
         callback: impl Fn(DownloadProgress) + Send + Sync + 'static + Copy,
     ) -> Result<()> {
         let url = url.as_ref();
-        let directory = directory.as_ref();
 
         let headers = self.get_headers(url).await?;
-
-        // Determine filename from the URL or the given optional filename
-        let filename = if let Some(filename) = filename {
-            filename
-        } else {
-            self.try_get_filename(&headers).await?
-        };
-        let filename = directory.join(filename);
+        let file_path = PathBuf::from(file_path.as_ref());
 
         // Get the total file size for progress tracking
         let file_size = self.get_content_length(&headers).await?;
@@ -143,7 +128,7 @@ impl DownloadClient {
 
         // Optionally preallocate space for the file
         if self.preallocate_space {
-            self.allocate_space(filename.clone(), file_size)?;
+            self.allocate_space(&file_path, file_size)?;
         }
 
         // Split the file into parts
@@ -153,7 +138,7 @@ impl DownloadClient {
         let progress = Arc::new(Mutex::new(current_progress));
 
         // A semaphore to control the number of concurrent downloads
-        let semaphore = Arc::new(Semaphore::new(self.concurrent_downloads as usize));
+        let semaphore = Arc::new(Semaphore::new(self.parts as usize));
 
         // Start measuring time
         let start_time = Instant::now();
@@ -164,7 +149,6 @@ impl DownloadClient {
 
         // Spawn a task to listen to progress updates and invoke the callback
         tokio::spawn({
-            //            let callback = callback.clone();
             async move {
                 while let Some(progress) = progress_rx.recv().await {
                     callback(progress); // Call the user-provided callback with the progress
@@ -181,7 +165,7 @@ impl DownloadClient {
             let progress = progress.clone();
             let progress_tx = progress_tx.clone(); // Pass the sender to each task
             let url = url.to_string(); // Clone the URL
-            let filename = filename.clone();
+            let filename = file_path.clone();
             let client = Arc::new(self.clone()); // Ensure `self` is owned and `'static`
 
             // Spawn the async task for each part
@@ -211,6 +195,12 @@ impl DownloadClient {
             task.await.context("Join task failed")??;
         }
 
+        let part_files: Vec<PathBuf> = (0..self.parts)
+            .map(|index| file_path.with_extension(format!("part{}", index)))
+            .collect();
+
+        self.stitch_parts(&file_path, part_files)?;
+
         Ok(())
     }
 
@@ -223,7 +213,6 @@ impl DownloadClient {
         progress_tx: tokio::sync::mpsc::UnboundedSender<DownloadProgress>,
         start_time: Instant,
     ) -> Result<()> {
-        let part_size = part.bytes_end - part.bytes_start + 1;
         let temp_file_path = filename.with_extension(format!("part{}", part.part_number));
 
         // Send an async HTTP GET request with a Range header
@@ -244,7 +233,6 @@ impl DownloadClient {
         let mut file = tokio::fs::File::create(&temp_file_path)
             .await
             .context("Failed to open temp file for writing")?;
-        let mut bytes_written: u64 = 0;
 
         // Stream the response body in chunks asynchronously
         let mut stream = response.bytes_stream();
@@ -255,8 +243,6 @@ impl DownloadClient {
             file.write_all(&chunk)
                 .await
                 .context("Failed to write chunk to temp file")?;
-
-            bytes_written += chunk.len() as u64;
 
             // Update progress every 4 KB or at the end of the part
             if let Ok(mut progress_lock) = progress.lock() {
@@ -282,80 +268,26 @@ impl DownloadClient {
         Ok(())
     }
 
-    async fn download_part_with_updates(
-        &self,
-        part: &DownloadPart,
-        url: &str,
-        filename: &Path,
-        progress: Arc<Mutex<DownloadProgress>>,
-        callback: impl Fn(DownloadProgress) + Send + Sync,
-        start_time: Instant,
-    ) -> Result<()> {
-        let part_size = part.bytes_end - part.bytes_start + 1;
-        let temp_file_path = filename.with_extension(format!("part{}", part.part_number));
-
-        // Send an async HTTP GET request with a Range header
-        let response = self
-            .client
-            .get(url)
-            .header(
-                "Range",
-                format!("bytes={}-{}", part.bytes_start, part.bytes_end),
-            )
-            .send()
-            .await
-            .context("Failed to send request")?
-            .error_for_status()
-            .context("Received error response from server")?;
-
-        // Open a file asynchronously for writing the part
-        let mut file = tokio::fs::File::create(&temp_file_path)
-            .await
-            .context("Failed to open temp file for writing")?;
-        let mut bytes_written: u64 = 0;
-
-        // Stream the response body in chunks asynchronously
-        let mut stream = response.bytes_stream();
-        while let Some(chunk) = futures_util::StreamExt::next(&mut stream).await {
-            let chunk = chunk.context("Failed to retrieve chunk data")?;
-
-            // Write the chunk to the file asynchronously
-            file.write_all(&chunk)
-                .await
-                .context("Failed to write chunk to temp file")?;
-
-            bytes_written += chunk.len() as u64;
-
-            // Update progress every 4 KB or at the end of the part
-            if bytes_written % 4096 == 0 || bytes_written == part_size {
-                if let Ok(mut progress_lock) = progress.lock() {
-                    progress_lock.bytes_downloaded += chunk.len() as u64;
-
-                    let parts_completed = (progress_lock.bytes_downloaded * self.parts as u64
-                        / progress_lock.total_bytes)
-                        as u16;
-                    progress_lock.parts_downloaded = parts_completed;
-
-                    progress_lock.bytes_per_second = (progress_lock.bytes_downloaded as f64
-                        / start_time.elapsed().as_secs_f64())
-                    .round() as u64;
-
-                    // Trigger the callback with the updated progress
-                    callback(*progress_lock);
-                }
-            }
+    fn stitch_parts(&self, output_file: &PathBuf, parts: Vec<PathBuf>) -> Result<()> {
+        let file = std::fs::File::create(output_file).context("Failed to create output file")?;
+        let mut writer = std::io::BufWriter::new(file);
+        for part in parts {
+            let mut reader = std::fs::File::open(&part).context("Failed to open part file")?;
+            std::io::copy(&mut reader, &mut writer)
+                .context("Failed to copy part to output file")?;
+            std::fs::remove_file(&part).context("Failed to remove part file")?;
         }
 
         Ok(())
     }
 
-    fn allocate_space(&self, filename: PathBuf, size: u64) -> Result<()> {
+    fn allocate_space(&self, filename: &PathBuf, size: u64) -> Result<()> {
         warn!(
             "Pre-allocating space for file {} with size {}",
             filename.display(),
             size
         );
-        let file = std::fs::File::create(&filename).with_context(|| {
+        let file = std::fs::File::create(filename).with_context(|| {
             format!(
                 "Failed to create file {}. Ensure there is enough disk space.",
                 filename.display()
