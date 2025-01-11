@@ -16,19 +16,48 @@ export default {
             light: {
                 colors: {
                     primary: {
-                        DEFAULT: "#f13848",
+                        DEFAULT: "hsl(75,95%,35%)",
+                        foreground: "#000000",
+                    },
+                    background: {
+                        "L200": "hsl(0,0%,100%)",
+                        "L100": "hsl(0,0%,95%)",
+                        DEFAULT: "hsl(0,0%,90%)",
+                        "L-100": "hsl(0,0%,85%)",
+                        "L-200": "hsl(0,0%,80%)",
+                    },
+                    error: {
+                        DEFAULT: "#d03e32",
                         foreground: "#fff",
                     },
-                    secondary: "#2b2b2b",
-                    background: "#e3e3ea",
+                    warning: {
+                        DEFAULT: "#dfa129",
+                        foreground: "#000",
+                    }
 
                 }
             },
             dark: {
                 colors: {
-                    primary: "#ff3247",
-                    secondary: "#eaeaea",
-                    background: "#18181b",
+                    primary: {
+                        DEFAULT: "hsl(75,95%,49%)",
+                        foreground: "#000000",
+                    },
+                    background: {
+                        "L200": "hsl(0,0%,13%)",
+                        "L100": "hsl(0,0%,10%)",
+                        DEFAULT: "hsl(0,0%,5%)",
+                        "L-100": "hsl(0,0%,3%)",
+                        "L-200": "hsl(0,0%,0%)",
+                    },
+                    error: {
+                        DEFAULT: "#d03e32",
+                        foreground: "#fff",
+                    },
+                    warning: {
+                        DEFAULT: "#dfa129",
+                        foreground: "#000",
+                    }
                 }
             },
         }
