@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/multipart-downloader-lib/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/multipart-downloader/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/multipart-downloader-app/src-tauri/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/multipart-downloader-lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
