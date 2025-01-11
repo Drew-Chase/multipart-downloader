@@ -1,7 +1,11 @@
 [package]
 name = "multipart-downloader-lib"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+build = "../build.rs"
+authors = ["Drew Chase"]
+repository = "https://github.com/drew-chase/multipart-downloader"
+autoexamples = true
 
 [dependencies]
 tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
