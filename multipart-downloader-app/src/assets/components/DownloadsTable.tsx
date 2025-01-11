@@ -1,6 +1,6 @@
 import {Progress, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow} from "@nextui-org/react";
 import Download from "../ts/download.ts";
-import PSButton from "./Extended/PSButton.tsx";
+import PSButton from "./variants/PSButton.tsx";
 import {Icon} from "@iconify-icon/react";
 
 export default function DownloadsTable({downloads}: { downloads: Download[] })
