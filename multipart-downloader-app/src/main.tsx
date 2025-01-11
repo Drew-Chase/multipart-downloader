@@ -7,14 +7,17 @@ import {NextUIProvider} from "@nextui-org/react";
 import "./assets/scss/index.scss";
 import Home from "./assets/pages/Home.tsx";
 import ActionBar from "./assets/components/ActionBar.tsx";
-import {ThemeProvider} from "./assets/providers/Theme.tsx";
+import {ThemeProvider} from "./assets/providers/ThemeProvider.tsx";
+import {SettingsModalProvider} from "./assets/providers/SettingsModalProvider.tsx";
 
 
 ReactDOM.createRoot($("#root")[0]!).render(
     <React.StrictMode>
         <BrowserRouter>
             <ThemeProvider>
-                <MainContentRenderer/>
+                <SettingsModalProvider>
+                    <MainContentRenderer/>
+                </SettingsModalProvider>
             </ThemeProvider>
         </BrowserRouter>
     </React.StrictMode>
@@ -23,6 +26,8 @@ ReactDOM.createRoot($("#root")[0]!).render(
 export function MainContentRenderer()
 {
     const navigate = useNavigate();
+    $("html").off("contextmenu").on("contextmenu", e => e.preventDefault());
+
     return (
         <NextUIProvider navigate={navigate}>
             <main className={"flex flex-col"}>
