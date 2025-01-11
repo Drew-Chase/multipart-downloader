@@ -1,6 +1,15 @@
 [package]
-name = "multipart-downloader-cli"
-version = "0.1.0"
+name = "multipart-downloader"
+version = "0.0.1"
 edition = "2021"
+build = "../build.rs"
+authors = ["Drew Chase"]
+repository = "https://github.com/drew-chase/multipart-downloader"
+autoexamples = true
 
 [dependencies]
+clap = { version = "4.5.26", features = ["derive", "string", "error-context", "color", "suggestions", "usage", "help", "wrap_help"] }
+multipart-downloader-lib = { path = "../multipart-downloader-lib" }
+tokio = { version = "1.43.0", features = ["macros"] }
+anyhow = "1.0.95"
+colored = { version = "3.0.0" }
