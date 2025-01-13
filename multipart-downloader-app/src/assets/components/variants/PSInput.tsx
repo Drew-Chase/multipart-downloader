@@ -4,6 +4,7 @@ export default function PSInput(props: InputProps)
 {
     return (
         <Input
+            {...props}
             classNames={{
                 ...props.classNames,
                 inputWrapper: cn(
@@ -11,7 +12,6 @@ export default function PSInput(props: InputProps)
                     props.classNames?.inputWrapper
                 )
             }}
-            {...props}
         />
     );
 }
