@@ -31,7 +31,8 @@ export function MainContentRenderer()
     return (
         <NextUIProvider navigate={navigate}>
             <main className={"flex flex-col"}>
-                <ActionBar/>
+                {/*// @ts-ignore*/}
+                {window.__TAURI_INTERNALS__! && <ActionBar/>}
                 <div className={"flex flex-row w-full max-h-[calc(100vh-2.5rem)] h-screen overflow-y-auto"}>
                     <Routes>
                         <Route>
