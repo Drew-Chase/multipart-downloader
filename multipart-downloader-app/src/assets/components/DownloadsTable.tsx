@@ -10,6 +10,7 @@ export default function DownloadsTable({downloads}: { downloads: Download[] })
             removeWrapper
             selectionMode={"multiple"}
             isHeaderSticky
+            aria-label="Downloads Table"
             classNames={{
                 th: "bg-background/80 backdrop-blur-sm",
                 thead: "[&>tr]:first:shadow-none",
@@ -17,11 +18,11 @@ export default function DownloadsTable({downloads}: { downloads: Download[] })
             }}
         >
             <TableHeader>
-                <TableColumn allowsSorting>Name</TableColumn>
-                <TableColumn allowsSorting>Size</TableColumn>
-                <TableColumn allowsSorting>Status</TableColumn>
-                <TableColumn allowsSorting>Time Left</TableColumn>
-                <TableColumn hideHeader>Actions</TableColumn>
+                <TableColumn key={"name"} allowsSorting>Name</TableColumn>
+                <TableColumn key={"size"} allowsSorting>Size</TableColumn>
+                <TableColumn key={"status"} allowsSorting>Status</TableColumn>
+                <TableColumn key={"time-left"} allowsSorting>Time Left</TableColumn>
+                <TableColumn key={"actions"} hideHeader>Actions</TableColumn>
             </TableHeader>
             <TableBody>
                 {downloads.map((download, index) => (
