@@ -4,18 +4,19 @@ export default function PSSelect(props: SelectProps)
 {
     return (
         <Select
+            {...props}
             classNames={{
                 ...props.classNames,
                 trigger: cn(
-                    "bg-component-background data-[hover]:bg-component-background-hover transition-colors",
+                    "bg-background-L100 data-[hover]:bg-background-L200 transition-colors",
+                    "aria-[expanded=true]:border-primary/30 border-1 border-transparent",
                     props.classNames?.trigger ?? ""
                 ),
                 popoverContent: cn(
-                    "w-full bg-component-background/75  backdrop-blur-md",
+                    "w-full bg-background/75  backdrop-blur-md",
                     props.classNames?.popoverContent ?? ""
                 )
             }}
-            {...props}
         >
             {props.children}
         </Select>
