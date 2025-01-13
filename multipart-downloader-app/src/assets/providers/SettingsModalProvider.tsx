@@ -19,7 +19,7 @@ export function SettingsModalProvider({children}: { children: ReactNode })
 
     return (
         <SettingsModalContext.Provider value={{isOpen, open, close}}>
-            <SettingsModal isOpen={isOpen} onClose={() => setIsOpen(false)}/>
+            <SettingsModal isOpen={isOpen} onClose={close}/>
             {children}
         </SettingsModalContext.Provider>
     );
