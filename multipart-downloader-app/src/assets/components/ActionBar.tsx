@@ -1,11 +1,7 @@
 import {Button, ButtonGroup, Link} from "@nextui-org/react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBug, faHeart, faX} from "@fortawesome/free-solid-svg-icons";
-import {faSquare, faWindowMinimize} from "@fortawesome/free-regular-svg-icons";
 import {getCurrentWindow} from "@tauri-apps/api/window";
 import {open} from "@tauri-apps/plugin-shell";
 import PSTooltip from "./variants/PSTooltip.tsx";
-import {faGithub} from "@fortawesome/free-brands-svg-icons";
 import {getRealTheme, Themes, useTheme} from "../providers/ThemeProvider.tsx";
 import {Icon} from "@iconify-icon/react";
 
@@ -21,17 +17,17 @@ export default function ActionBar()
                 <ButtonGroup className={"mr-8 mt-1 h-[2rem]"}>
                     <PSTooltip content={"View on Github"}>
                         <Button variant={"light"} className={"min-w-0 h-[2rem]"} radius={"sm"} as={Link} onPress={() => open("https://github.com/drew-chase/multipart-downloader")}>
-                            <FontAwesomeIcon icon={faGithub}/>
+                            <Icon icon="mdi:github" height="1rem"/>
                         </Button>
                     </PSTooltip>
                     <PSTooltip content={"Report a bug or request a feature"}>
                         <Button variant={"light"} className={"min-w-0 h-[2rem]"} radius={"sm"} as={Link} onPress={() => open("https://github.com/drew-chase/multipart-downloader/issues")}>
-                            <FontAwesomeIcon icon={faBug}/>
+                            <Icon icon="mdi:bug" height="1rem"/>
                         </Button>
                     </PSTooltip>
                     <PSTooltip content={"Donate to the developer"}>
                         <Button variant={"light"} className={"min-w-0 h-[2rem] text-red-500"} radius={"sm"} as={Link} onPress={() => open("https://github.com/sponsors/Drew-Chase")}>
-                            <FontAwesomeIcon icon={faHeart}/>
+                            <Icon icon="fa6-solid:heart" height="1rem"/>
                         </Button>
                     </PSTooltip>
                 </ButtonGroup>
@@ -40,17 +36,17 @@ export default function ActionBar()
                 <ButtonGroup className={"h-[2rem]"}>
                     <PSTooltip content={`Enable ${getRealTheme(theme) === "dark" ? "Light" : "Dark"} Mode`}>
                         <Button variant={"light"} className={"min-w-0 h-[2rem] text-tiny"} radius={"sm"} onPress={() => setTheme(prev => getRealTheme(prev) === "dark" ? Themes.LIGHT : Themes.DARK)}>
-                            <Icon icon={`mage:${getRealTheme(theme) === "dark" ? "moon" : "sun"}-fill`} width="1rem"/>
+                            <Icon icon={`mage:${getRealTheme(theme) === "dark" ? "moon" : "sun"}-fill`} height="1rem"/>
                         </Button>
                     </PSTooltip>
                     <Button variant={"light"} className={"min-w-0 h-[2rem] text-tiny"} radius={"sm"} onPress={() => appWindow.minimize()}>
-                        <FontAwesomeIcon icon={faWindowMinimize}/>
+                        <Icon icon="fa6-regular:window-minimize" height=".85rem"/>
                     </Button>
                     <Button variant={"light"} className={"min-w-0 h-[2rem] text-tiny"} radius={"sm"} onPress={() => appWindow.toggleMaximize()}>
-                        <FontAwesomeIcon icon={faSquare}/>
+                        <Icon icon="fa6-regular:square" height=".85rem"/>
                     </Button>
                     <Button variant={"light"} color={"danger"} className={"min-w-0 h-[2rem] text-tiny"} radius={"sm"} onPress={() => appWindow.close()}>
-                        <FontAwesomeIcon icon={faX}/>
+                        <Icon icon="fa6-solid:x" height=".85rem"/>
                     </Button>
                 </ButtonGroup>
             </div>
