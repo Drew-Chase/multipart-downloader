@@ -1,6 +1,6 @@
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Tab, Tabs} from "@nextui-org/react";
 import PSButton from "../variants/PSButton.tsx";
-import NetworkSettingsComponent, {NetworkSettings, NetworkSettingsProps} from "./NetworkSettingsComponent.tsx";
+import NetworkSettingsComponent, {DefaultNetworkSettings, NetworkSettings} from "./NetworkSettingsComponent.tsx";
 import StorageSettings from "./StorageSettings.tsx";
 import AboutSettings from "./AboutSettings.tsx";
 import {useState} from "react";
@@ -11,10 +11,32 @@ interface SettingsModalProps
     onClose: () => void;
 }
 
+enum SettingsTab
+{
+    Networking = "networking",
+    Storage = "storage",
+    About = "about"
+}
+
 export default function SettingsModal(props: SettingsModalProps)
 {
-    const [selectedTab, setSelectedTab] = useState("networking");
-    const [networkSettings, setNetworkSettings] = useState<NetworkSettings>(localStorage.getItem("networkSettings") ? JSON.parse(localStorage.getItem("networkSettings")!) : {} as NetworkSettings);
+    const [selectedTab, setSelectedTab] = useState(SettingsTab.Networking);
+    const [networkSettings, setNetworkSettings] = useState<NetworkSettings>(
+        localStorage.getItem("networkSettings") ?
+            JSON.parse(localStorage.getItem("networkSettings")!) :
+            DefaultNetworkSettings
+    );
+
+    const reload = () =>
+    {
+        setSelectedTab(SettingsTab.Networking);
+        setNetworkSettings(
+            localStorage.getItem("networkSettings") ?
+                JSON.parse(localStorage.getItem("networkSettings")!) :
+                DefaultNetworkSettings
+        );
+    };
+
 
     const saveSettings = () =>
     {
@@ -28,6 +50,11 @@ export default function SettingsModal(props: SettingsModalProps)
             size={"5xl"}
             className={"h-[calc(100dvh_-_8rem)]"}
             isDismissable={false}
+            onOpenChange={isOpen =>
+            {
+                console.log(`SettingsModal: ${isOpen}`);
+                reload();
+            }}
         >
             <ModalContent>
                 {onClose => (
@@ -35,14 +62,15 @@ export default function SettingsModal(props: SettingsModalProps)
                         <ModalHeader className={"flex flex-row items-center"}>
                             <p>Settings</p>
                             <Tabs
+                                key={"settings-tabs"}
                                 variant={"underlined"}
                                 color={"primary"}
                                 selectedKey={selectedTab}
-                                onSelectionChange={key => setSelectedTab(key as string)}
+                                onSelectionChange={key => setSelectedTab(key as SettingsTab)}
                             >
-                                <Tab key={"networking"} title={"Networking"}/>
-                                <Tab key={"storage"} title={"Storage"}/>
-                                <Tab key={"about"} title={"About"}/>
+                                {Object.values(SettingsTab).map(tab => (
+                                    <Tab key={tab} title={tab} className={"capitalize"}/>
+                                ))}
                             </Tabs>
                         </ModalHeader>
                         <ModalBody>
@@ -50,14 +78,13 @@ export default function SettingsModal(props: SettingsModalProps)
                             {
                                 switch (selectedTab)
                                 {
-                                    case "networking":
+                                    case SettingsTab.Networking:
                                         return <NetworkSettingsComponent settings={networkSettings} onSettingsChange={setNetworkSettings}/>;
-                                    case "storage":
+                                    case SettingsTab.Storage:
                                         return <StorageSettings/>;
-                                    case "about":
+                                    case SettingsTab.About:
                                         return <AboutSettings/>;
                                 }
-                                return <></>;
                             })()}
                         </ModalBody>
                         <ModalFooter>
