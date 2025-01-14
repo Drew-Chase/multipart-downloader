@@ -1,5 +1,6 @@
 use multipart_downloader_lib::download_client::DownloadProgress;
 use tauri::ipc::Channel;
+
 #[tauri::command]
 async fn download(
     url: String,
@@ -24,6 +25,13 @@ async fn download(
     Ok(())
 }
 
+#[tauri::command]
+async fn get_default_downloads_directory() -> Result<String, String> {
+    dirs::download_dir()
+        .map(|path| path.to_string_lossy().to_string())
+        .ok_or_else(|| "Failed to determine the default downloads directory".to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -31,7 +39,7 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![download])
+        .invoke_handler(tauri::generate_handler![download, get_default_downloads_directory])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
