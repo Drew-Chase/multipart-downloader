@@ -27,9 +27,9 @@ export default function PSSwitch(props: IExpandedSwitchProps)
                 classNames={{
                     ...props.classNames,
                     base: cn(
-                        "inline-flex flex-row-reverse w-full max-w-full bg-component-background hover:bg-component-background-hover items-center",
+                        "inline-flex flex-row-reverse w-full max-w-full bg-background-L100 hover:bg-background-L200 items-center",
                         "justify-between cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                        "data-[selected=true]:border-primary",
+                        "data-[selected=true]:border-primary transition-all duration-200",
                         props.classNames?.base
                     ),
                     wrapper: cn("p-0 h-4 overflow-visible bg-foreground/20", props.classNames?.wrapper),
@@ -39,7 +39,7 @@ export default function PSSwitch(props: IExpandedSwitchProps)
                         //selected
                         "group-data-[selected=true]:ml-6",
                         // pressed
-                        "group-data-[pressed=true]:w-7",
+                        "group-data-[pressed=true]:w-6",
                         "group-data-[selected]:group-data-[pressed]:ml-4",
                         props.classNames?.thumb
                     )
