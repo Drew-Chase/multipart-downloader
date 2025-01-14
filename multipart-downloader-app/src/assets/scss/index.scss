@@ -3,36 +3,39 @@
 @tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+$primary-color: var(--nextui-primary);
+$scrollbar-width: 5px;
+$scrollbar-background-color: transparent;
+$scrollbar-thumb-color: hsl($primary-color);
+$scrollbar-thumb-hover-color: hsl($primary-color);
 
 :root {
-  --scrollbar-background-color: transparent;
-  --scrollbar-thumb-color: hsl(var(--nextui-primary));
-  --scrollbar-thumb-hover-color: hsl(var(--nextui-primary));
   overflow: auto;
-  scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-background-color);
+  scrollbar-color: $scrollbar-thumb-color $scrollbar-background-color;
   scrollbar-width: thin;
   scrollbar-gutter: stable;
 }
 
-body{
+body {
   font-family: 'Roboto', sans-serif;
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
+  width: $scrollbar-width;
+  height: $scrollbar-width;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--scrollbar-background-color);
+  background: $scrollbar-background-color;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-color);
+  background-color: $scrollbar-thumb-color;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbar-thumb-hover-color);
+  background-color: $scrollbar-thumb-hover-color;
 }
 
 ::selection {
