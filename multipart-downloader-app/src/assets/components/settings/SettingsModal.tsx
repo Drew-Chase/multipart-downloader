@@ -1,7 +1,7 @@
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Tab, Tabs} from "@nextui-org/react";
 import PSButton from "../variants/PSButton.tsx";
-import NetworkSettingsComponent, {DefaultNetworkSettings, NetworkSettings} from "./NetworkSettingsComponent.tsx";
-import StorageSettings from "./StorageSettings.tsx";
+import NetworkSettingsComponent, {DefaultNetworkSettings, NetworkSettings} from "./networking/NetworkSettingsComponent.tsx";
+import StorageSettingsComponent, {DefaultStorageSettings, StorageSettings} from "./storage/StorageSettingsComponent.tsx";
 import AboutSettings from "./AboutSettings.tsx";
 import {useState} from "react";
 
@@ -27,6 +27,11 @@ export default function SettingsModal(props: SettingsModalProps)
             DefaultNetworkSettings
     );
 
+    const [storageSettings, setStorageSettings] = useState<StorageSettings>(localStorage.getItem("storageSettings") ?
+        JSON.parse(localStorage.getItem("storageSettings")!) :
+        DefaultStorageSettings
+    );
+
     const reload = () =>
     {
         setSelectedTab(SettingsTab.Networking);
@@ -35,12 +40,17 @@ export default function SettingsModal(props: SettingsModalProps)
                 JSON.parse(localStorage.getItem("networkSettings")!) :
                 DefaultNetworkSettings
         );
+        setStorageSettings(localStorage.getItem("storageSettings") ?
+            JSON.parse(localStorage.getItem("storageSettings")!) :
+            DefaultStorageSettings
+        );
     };
 
 
     const saveSettings = () =>
     {
         localStorage.setItem("networkSettings", JSON.stringify(networkSettings));
+        localStorage.setItem("storageSettings", JSON.stringify(storageSettings));
     };
 
     return (
@@ -49,12 +59,9 @@ export default function SettingsModal(props: SettingsModalProps)
             onClose={props.onClose}
             size={"5xl"}
             className={"h-[calc(100dvh_-_8rem)]"}
+            scrollBehavior={"inside"}
             isDismissable={false}
-            onOpenChange={isOpen =>
-            {
-                console.log(`SettingsModal: ${isOpen}`);
-                reload();
-            }}
+            onOpenChange={reload}
         >
             <ModalContent>
                 {onClose => (
@@ -81,7 +88,7 @@ export default function SettingsModal(props: SettingsModalProps)
                                     case SettingsTab.Networking:
                                         return <NetworkSettingsComponent settings={networkSettings} onSettingsChange={setNetworkSettings}/>;
                                     case SettingsTab.Storage:
-                                        return <StorageSettings/>;
+                                        return <StorageSettingsComponent settings={storageSettings} onSettingsChange={setStorageSettings}/>;
                                     case SettingsTab.About:
                                         return <AboutSettings/>;
                                 }
