@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {ProxyTypeSelector} from "./ProxyTypeSelector.tsx";
 import PSInput from "../../../variants/PSInput.tsx";
 import PSTooltip from "../../../variants/PSTooltip.tsx";
@@ -7,8 +7,9 @@ import PSButton from "../../../variants/PSButton.tsx";
 import {Proxy, ProxyType} from "./ProxyList.tsx";
 import {ButtonGroup, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow} from "@nextui-org/react";
 
-export function NewProxyInput({onSubmit}: { onSubmit: (proxy: Proxy) => void })
+export function NewProxyInput({onSubmit, value, onCancel}: { onSubmit: (proxy: Proxy) => void, value?: Proxy, onCancel?: () => void })
 {
+    const [lastIndex, setLastIndex] = useState<number>(+(localStorage.getItem("proxy-list-index") ?? "0"));
     const [proxyType, setProxyType] = useState(ProxyType.HTTP);
     const [host, setHost] = useState("");
     const [port, setPort] = useState(80);
@@ -16,17 +17,8 @@ export function NewProxyInput({onSubmit}: { onSubmit: (proxy: Proxy) => void })
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const submit = () =>
+    const resetFields = () =>
     {
-        onSubmit(
-            {
-                host: host,
-                port: port,
-                username: username,
-                password: password,
-                type: proxyType
-            }
-        );
         setProxyType(ProxyType.HTTP);
         setHost("");
         setPort(80);
@@ -34,6 +26,36 @@ export function NewProxyInput({onSubmit}: { onSubmit: (proxy: Proxy) => void })
         setPassword("");
         setUseAuth(false);
     };
+
+    const submit = () =>
+    {
+        onSubmit(
+            {
+                id: lastIndex + 1,
+                host: host,
+                port: port,
+                username: username,
+                password: password,
+                type: proxyType
+            }
+        );
+        setLastIndex(lastIndex + 1);
+        localStorage.setItem("proxy-list-index", lastIndex.toString());
+        resetFields();
+    };
+
+    useEffect(() =>
+    {
+        if (value)
+        {
+            setProxyType(value.type);
+            setHost(value.host);
+            setPort(value.port);
+            setUsername(value.username ?? "");
+            setPassword(value.password ?? "");
+            setUseAuth(value.username !== "" && value.password !== "");
+        } else resetFields();
+    }, [value]);
 
     return (
         <div className={"flex flex-col gap-2 w-full"}>
@@ -119,14 +141,35 @@ export function NewProxyInput({onSubmit}: { onSubmit: (proxy: Proxy) => void })
                             <Icon icon="mage:chevron-up" width="16" data-active={useAuth ? "true" : "false"} className={"rotate-180 transition-all duration-250 data-[active=true]:rotate-0"}/>
                         </PSButton>
                     </PSTooltip>
-                    <PSTooltip content={"Add new proxy"} delay={800}>
-                        <PSButton
-                            onPress={submit}
-                            className={"h-full bg-background-L100 data-[hover]:bg-background-L200"}
-                        >
-                            <Icon icon="mage:plus" width="18"/>
-                        </PSButton>
-                    </PSTooltip>
+                    {value ? (
+                        <>
+                            <PSTooltip content={"Save proxy"} delay={800}>
+                                <PSButton
+                                    // onPress={submit}
+                                    className={"h-full bg-background-L100 data-[hover]:bg-background-L200"}
+                                >
+                                    <Icon icon="mage:check" width="18"/>
+                                </PSButton>
+                            </PSTooltip>
+                            <PSTooltip content={"Ignore changes"} delay={800}>
+                                <PSButton
+                                    onPress={onCancel}
+                                    className={"h-full bg-background-L100 data-[hover]:bg-background-L200"}
+                                >
+                                    <Icon icon="iconoir:cancel" width="18"/>
+                                </PSButton>
+                            </PSTooltip>
+                        </>
+                    ) : (
+                        <PSTooltip content={"Add new proxy"} delay={800}>
+                            <PSButton
+                                onPress={submit}
+                                className={"h-full bg-background-L100 data-[hover]:bg-background-L200"}
+                            >
+                                <Icon icon="mage:plus" width="18"/>
+                            </PSButton>
+                        </PSTooltip>
+                    )}
                 </ButtonGroup>
             </div>
             <div className={"flex flex-row gap-2 overflow-y-hidden opacity-0 max-h-0 transition-all duration-[500ms] data-[active=true]:opacity-100 data-[active=true]:max-h-[10rem] ease-in-out"} data-active={useAuth}>
