@@ -1,5 +1,6 @@
-import SplitPartCountSlider from "./networking/SplitPartCountSlider.tsx";
-import ProxyList, {Proxy} from "./networking/proxy-list/ProxyList.tsx";
+import SplitPartCountSlider from "./SplitPartCountSlider.tsx";
+import {Proxy} from "./proxy-list/ProxyList.tsx";
+import {ProxySettingsComponent} from "./proxy-list/ProxySettingsComponent.tsx";
 
 interface NetworkSettingsProps
 {
@@ -25,7 +26,7 @@ export default function NetworkSettingsComponent(props: NetworkSettingsProps)
     return (
         <div className={"w-full p-3 flex flex-col gap-4"}>
             <SplitPartCountSlider value={settings.splitPartsCount} onValueChange={value => onSettingsChange({...settings, splitPartsCount: value})}/>
-            <ProxyList value={settings.proxies} onValueChange={proxies => onSettingsChange({...settings, proxies})} />
+            <ProxySettingsComponent value={settings.proxies} onValueChange={proxies => onSettingsChange({...settings, proxies})} />
         </div>
     );
 }
