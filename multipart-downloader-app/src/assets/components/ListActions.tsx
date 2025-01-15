@@ -5,23 +5,42 @@ import $ from "jquery";
 import PSButton from "./variants/PSButton.tsx";
 import PSInput from "./variants/PSInput.tsx";
 import {useSettingsModal} from "../providers/SettingsModalProvider.tsx";
+import Download from "../ts/download.ts";
+import {useStartDownload} from "../providers/StartDownloadProvider.tsx";
+import PSTooltip from "./variants/PSTooltip.tsx";
 
 export default function ListActions()
 {
-    const {open} = useSettingsModal();
+    const {open: openSettingsModal} = useSettingsModal();
+    let {open: openStartDownload} = useStartDownload();
     return (
         <div className={"flex flex-row pb-2 border-b-1 border-foreground/20 gap-4"}>
             <PSInput
                 label={"Add Url"}
                 placeholder={"Paste url or select file"}
                 className={"max-w-md"}
+                onKeyUp={async e =>
+                {
+                    if (e.key === "Enter")
+                    {
+                        const target = e.target as HTMLInputElement;
+                        let filename = await Download.try_get_filename(target.value);
+                        openStartDownload(target.value, filename, download =>
+                        {
+                            console.log(download);
+                        });
+                        console.log(filename);
+                    }
+                }}
                 startContent={<Icon icon={"mage:link"} width={16}/>}
                 endContent={
                     <div className={"h-full flex flex-row gap-2"}>
                         <Divider orientation={"vertical"}/>
-                        <PSButton className={"h-full"} variant={"light"} color={"primary"}>
-                            <Icon icon={"mage:file-2-fill"} width={16}/>
-                        </PSButton>
+                        <PSTooltip content={"Upload URL list"}>
+                            <PSButton className={"h-full"} variant={"light"}>
+                                <Icon icon={"mage:file-2-fill"} width={16}/>
+                            </PSButton>
+                        </PSTooltip>
                     </div>
                 }
             />
@@ -34,7 +53,7 @@ export default function ListActions()
                 <Divider orientation={"vertical"} className={"h-1/2 my-auto"}/>
                 <div className={"flex flex-row gap-1"}>
                     <ActionButton icon={"mage:trash"} label={"Clear Queue"} onClick={() => console.log("Clear Queue action triggered")}/>
-                    <ActionButton icon={"mage:settings"} label={"Settings"} onClick={open}/>
+                    <ActionButton icon={"mage:settings"} label={"Settings"} onClick={openSettingsModal}/>
                     <ActionButton icon={"mage:file-download"} label={"Export List"} onClick={() => console.log("Export List action triggered")}/>
                 </div>
             </div>
