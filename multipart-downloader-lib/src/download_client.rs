@@ -93,24 +93,45 @@ impl DownloadClient {
             .parse()?;
         Ok(content_length)
     }
-
-    pub async fn try_get_filename(&self, headers: &HeaderMap) -> Result<String> {
-        let content_disposition = headers
-            .get("Content-Disposition")
-            .context("Missing Content-Disposition header in response")?;
-
-        let filename = content_disposition
-            .to_str()
-            .context("Invalid Content-Disposition header value")?
-            .split(';')
-            .map(str::trim)
-            .find(|part| part.starts_with("filename="))
-            .and_then(|filename_part| filename_part.strip_prefix("filename="))
-            .map(|s| s.trim_matches('"'))
-            .ok_or_else(|| anyhow::anyhow!("Filename not found in Content-Disposition header"))?;
-
-        Ok(filename.to_string())
+    
+    pub async fn try_get_filename_from_url(url: &str) -> Result<String> {
+        let client = Client::new();
+        let response = client
+            .head(url)
+            .send()
+            .await
+            .context("Failed to send HEAD request to URL")?;
+        let headers = response.headers();
+        Self::try_get_filename_from_headers(headers, url).await
     }
+
+    pub async fn try_get_filename_from_headers(headers: &HeaderMap, url: &str) -> Result<String> {
+        // Attempt to get the filename from the Content-Disposition header
+        if let Some(content_disposition) = headers.get("Content-Disposition") {
+            if let Ok(content_disposition_str) = content_disposition.to_str() {
+                if let Some(filename_part) = content_disposition_str
+                    .split(';')
+                    .map(str::trim)
+                    .find(|part| part.starts_with("filename="))
+                {
+                    if let Some(filename) = filename_part.strip_prefix("filename=") {
+                        return Ok(filename.trim_matches('"').trim().to_string());
+                    }
+                }
+            }
+        }
+
+        // Fallback: Extract the filename from the URL
+        let extracted_filename = url
+            .split('/')
+            .last()
+            .and_then(|segment| segment.split('?').next()) // Remove query parameters
+            .and_then(|segment| segment.split('#').next()) // Remove fragment (hash)
+            .ok_or_else(|| anyhow::anyhow!("Filename not found in URL"))?;
+
+        Ok(extracted_filename.trim().to_string())
+    }
+
     pub async fn download(
         &self,
         url: impl AsRef<str>,
@@ -222,16 +243,16 @@ impl DownloadClient {
         start_time: Instant,
     ) -> Result<()> {
         let temp_file_path = filename.with_extension(format!("part{}", part.part_number));
-        
+
         let client = if let Some(proxy) = &part.proxy {
-          Client::builder()
-              .proxy(reqwest::Proxy::all(proxy)?)
-              .build()
-              .context(format!("Failed to create client with proxy: {}", proxy))?
-        }else{
+            Client::builder()
+                .proxy(reqwest::Proxy::all(proxy)?)
+                .build()
+                .context(format!("Failed to create client with proxy: {}", proxy))?
+        } else {
             self.client.clone()
         };
-        
+
         // Send an async HTTP GET request with a Range header
         let response = client
             .get(url)
