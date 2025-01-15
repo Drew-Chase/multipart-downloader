@@ -3,7 +3,8 @@ import PSButton from "../variants/PSButton.tsx";
 import NetworkSettingsComponent, {DefaultNetworkSettings, NetworkSettings} from "./networking/NetworkSettingsComponent.tsx";
 import StorageSettingsComponent, {DefaultStorageSettings, StorageSettings} from "./storage/StorageSettingsComponent.tsx";
 import AboutSettings from "./AboutSettings.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import $ from "jquery";
 
 interface SettingsModalProps
 {
@@ -11,12 +12,13 @@ interface SettingsModalProps
     onClose: () => void;
 }
 
-enum SettingsTab
+export enum SettingsTab
 {
     Networking = "networking",
     Storage = "storage",
     About = "about"
 }
+
 
 export default function SettingsModal(props: SettingsModalProps)
 {
@@ -53,14 +55,31 @@ export default function SettingsModal(props: SettingsModalProps)
         localStorage.setItem("storageSettings", JSON.stringify(storageSettings));
     };
 
+    useEffect(() =>
+    {
+        const root = $("html")
+            .off("click")
+            .on("click", e =>
+            {
+                if ($(e.target).closest("section[role='dialog']").length === 0) props.onClose();
+            });
+
+        return () =>
+        {
+            root.off("click");
+        };
+
+    }, []);
+
     return (
         <Modal
             isOpen={props.isOpen}
             onClose={props.onClose}
             size={"5xl"}
+            isDismissable={false}
+            backdrop={"blur"}
             className={"h-[calc(100dvh_-_8rem)]"}
             scrollBehavior={"inside"}
-            isDismissable={false}
             onOpenChange={reload}
         >
             <ModalContent>
