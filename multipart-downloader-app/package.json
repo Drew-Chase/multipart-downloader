@@ -11,10 +11,10 @@
 	},
 	"dependencies": {
 		"@iconify-icon/react": "2.2.0",
-		"@nextui-org/react": "2.6.10",
+		"@nextui-org/react": "2.6.11",
 		"@tauri-apps/api": "2.2.0",
-		"@tauri-apps/plugin-dialog": "~2",
-		"@tauri-apps/plugin-fs": "~2",
+		"@tauri-apps/plugin-dialog": "2.2.0",
+		"@tauri-apps/plugin-fs": "2.2.0",
 		"@tauri-apps/plugin-shell": "2.2.0",
 		"framer-motion": "11.15.0",
 		"jquery": "3.7.1",
