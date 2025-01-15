@@ -1,28 +1,56 @@
+import {Channel, invoke} from "@tauri-apps/api/core";
+import {Settings} from "./settings.ts";
+import {SettingsTab} from "../components/settings/SettingsModal.tsx";
+
+export type DownloadProgress = {
+    bytes_downloaded: number;
+    total_bytes: number;
+    parts_downloaded: number;
+    parts_total: number;
+    bytes_per_second: number;
+}
+
 export default class Download
 {
     public readonly url: string;
     public readonly filename: string;
-    public readonly bytes_downloaded: string;
-    public readonly total_bytes: string;
-    public readonly parts_downloaded: number;
-    public readonly parts_total: number;
-    public readonly bytes_per_second: string;
-    public readonly progress: number;
+    public readonly settings: Settings;
 
-    constructor(url: string, filename: string, bytes_downloaded: string, total_bytes: string, parts_downloaded: number, parts_total: number, bytes_per_second: string, progress: number)
+    constructor(url: string, filename: string, settings: Settings)
     {
         this.url = url;
         this.filename = filename;
-        this.bytes_downloaded = bytes_downloaded;
-        this.total_bytes = total_bytes;
-        this.parts_downloaded = parts_downloaded;
-        this.parts_total = parts_total;
-        this.bytes_per_second = bytes_per_second;
-        this.progress = progress;
+        this.settings = settings;
     }
 
-    async download()
+    async download(url: string, filename: string, onUpdate: (download: DownloadProgress) => void)
     {
+        const downloadEvent = new Channel<DownloadProgress>();
+        downloadEvent.onmessage = (event) =>
+        {
+            console.log(event);
+            onUpdate(event);
+        };
+        await invoke("download", {
+            url: url,
+            parts: this.settings[SettingsTab.Networking].splitPartsCount,
+            allocate: this.settings[SettingsTab.Storage].preallocateSpace,
+            filepath: filename,
+            on_event: Channel<DownloadProgress>
+        });
+    }
+
+    static async try_get_filename(url: string): Promise<string | null>
+    {
+        try
+        {
+            return await invoke("try_get_filename", {url: url});
+
+        } catch (e)
+        {
+            console.error(`Error while trying to get filename from url ${url}: ${e}`);
+        }
+        return null;
     }
 
 
