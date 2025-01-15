@@ -9,6 +9,7 @@ import Home from "./assets/pages/Home.tsx";
 import ActionBar from "./assets/components/ActionBar.tsx";
 import {ThemeProvider} from "./assets/providers/ThemeProvider.tsx";
 import {SettingsModalProvider} from "./assets/providers/SettingsModalProvider.tsx";
+import {StartDownloadProvider} from "./assets/providers/StartDownloadProvider.tsx";
 
 
 ReactDOM.createRoot($("#root")[0]!).render(
@@ -16,7 +17,9 @@ ReactDOM.createRoot($("#root")[0]!).render(
         <BrowserRouter>
             <ThemeProvider>
                 <SettingsModalProvider>
-                    <MainContentRenderer/>
+                    <StartDownloadProvider>
+                        <MainContentRenderer/>
+                    </StartDownloadProvider>
                 </SettingsModalProvider>
             </ThemeProvider>
         </BrowserRouter>
