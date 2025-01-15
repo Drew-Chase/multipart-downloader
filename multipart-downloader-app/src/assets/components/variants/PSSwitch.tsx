@@ -22,7 +22,7 @@ export default function PSSwitch(props: IExpandedSwitchProps)
             {/* @ts-ignore */}
             <Switch
                 {...updatedProps}
-                defaultSelected={props.toggle ?? false}
+                isSelected={props.toggle ?? false}
                 onValueChange={props.onToggle as ((selected: boolean) => void) | undefined}
                 classNames={{
                     ...props.classNames,
@@ -37,7 +37,7 @@ export default function PSSwitch(props: IExpandedSwitchProps)
                         "w-6 h-6 border-2 shadow-lg",
                         "group-data-[hover=true]:border-primary",
                         //selected
-                        "group-data-[selected=true]:ml-6",
+                        "group-data-[selected=true]:ml-[24px]",
                         // pressed
                         "group-data-[pressed=true]:w-6",
                         "group-data-[selected]:group-data-[pressed]:ml-4",
