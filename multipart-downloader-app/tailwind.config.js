@@ -22,7 +22,7 @@ export default {
                     background: {
                         "L200": "hsl(0,0%,100%)",
                         "L100": "hsl(0,0%,95%)",
-                        DEFAULT: "hsl(0,0%,90%)",
+                        DEFAULT: "hsl(0,0%,100%)",
                         "L-100": "hsl(0,0%,85%)",
                         "L-200": "hsl(0,0%,80%)",
                     },
