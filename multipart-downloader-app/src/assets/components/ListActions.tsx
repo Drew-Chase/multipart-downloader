@@ -5,14 +5,15 @@ import $ from "jquery";
 import PSButton from "./variants/PSButton.tsx";
 import PSInput from "./variants/PSInput.tsx";
 import {useSettingsModal} from "../providers/SettingsModalProvider.tsx";
-import Download from "../ts/download.ts";
-import {useStartDownload} from "../providers/StartDownloadProvider.tsx";
+import Download, {DownloadStatus} from "../ts/download.ts";
 import PSTooltip from "./variants/PSTooltip.tsx";
+import {useDownloadManager} from "../providers/DownloadManagerContext.tsx";
+import {DownloadItem} from "../providers/StartDownloadProvider.tsx";
 
 export default function ListActions()
 {
     const {open: openSettingsModal} = useSettingsModal();
-    let {open: openStartDownload} = useStartDownload();
+    let {openModal: openStartDownload, updateDownload, addDownload} = useDownloadManager();
     return (
         <div className={"flex flex-row pb-2 border-b-1 border-foreground/20 gap-4"}>
             <PSInput
@@ -24,9 +25,34 @@ export default function ListActions()
                     if (e.key === "Enter")
                     {
                         const target = e.target as HTMLInputElement;
-                        let filename = await Download.try_get_filename(target.value);
+                        const url= target.value;
+                        let filename = await Download.try_get_filename(url);
                         openStartDownload(target.value, filename, download =>
                         {
+                            filename = filename! as string;
+                            const id = +(localStorage.getItem("last-download-id") ?? 0) + 1;
+                            localStorage.setItem("last-download-id", id.toString());
+                            let downloadItem: DownloadItem = {
+                                id,
+                                url,
+                                filename,
+                                bytes_downloaded:0,
+                                total_bytes:0,
+                                parts_downloaded:0,
+                                parts_total:0,
+                                bytes_per_second:0,
+                                status: DownloadStatus.Idle,
+                            }
+                            addDownload(downloadItem)
+                            download.download(url, filename!, progress=>{
+                                downloadItem.bytes_downloaded = progress.bytes_downloaded;
+                                downloadItem.total_bytes = progress.total_bytes;
+                                downloadItem.parts_downloaded = progress.parts_downloaded;
+                                downloadItem.parts_total = progress.parts_total;
+                                downloadItem.bytes_per_second = progress.bytes_per_second;
+                                downloadItem.status = DownloadStatus.Downloading;
+                                updateDownload(id, downloadItem)
+                            })
                             console.log(download);
                         });
                         console.log(filename);
