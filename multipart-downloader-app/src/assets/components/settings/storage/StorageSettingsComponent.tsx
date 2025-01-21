@@ -26,8 +26,8 @@ export default function StorageSettingsComponent(props: StorageSettingsProps)
             <PSSwitch
                 label={"Preallocate Space"}
                 description={"Preallocate space for all files before downloading, this is to avoid fragmentation and check if space is available"}
-                isSelected={props.settings.preallocateSpace}
-                onValueChange={value => props.onSettingsChange({...props.settings, preallocateSpace: value})}
+                toggle={props.settings.preallocateSpace}
+                onToggle={value => props.onSettingsChange({...props.settings, preallocateSpace: value})}
             />
         </div>
     );
