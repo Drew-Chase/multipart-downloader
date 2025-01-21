@@ -1,4 +1,6 @@
+use log::error;
 use multipart_downloader_lib::download_client::{DownloadClient, DownloadProgress};
+use std::path::PathBuf;
 use tauri::ipc::Channel;
 
 #[tauri::command]
@@ -6,17 +8,20 @@ pub async fn download(
     url: String,
     parts: u16,
     allocate: bool,
-    filepath: String,
+    directory: String,
+    filename: String,
     on_event: Channel<DownloadProgress>,
 ) -> Result<(), String> {
     let mut client = DownloadClient::new();
     client.with_parts(parts);
     client.set_preallocate_space(allocate);
 
+    let filepath = PathBuf::from(directory).join(filename);
+
     client
-        .download(url, filepath, move |progress| {
+        .download(url, filepath.to_str().unwrap(), move |progress| {
             on_event.send(progress).unwrap_or_else(|err| {
-                eprintln!("Error sending progress: {:?}", err);
+                error!("Error sending progress: {:?}", err);
             });
         })
         .await
