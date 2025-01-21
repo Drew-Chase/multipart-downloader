@@ -32,12 +32,12 @@ export default function PSSwitch(props: IExpandedSwitchProps)
                         "data-[selected=true]:border-primary transition-all duration-200",
                         props.classNames?.base
                     ),
-                    wrapper: cn("p-0 h-4 overflow-visible bg-foreground/20", props.classNames?.wrapper),
+                    wrapper: cn("p-0 h-4 w-11 overflow-visible bg-foreground/20", props.classNames?.wrapper),
                     thumb: cn(
-                        "w-6 h-6 border-2 shadow-lg",
+                        "w-6 h-6 max-w-6 max-h-6 border-2 shadow-lg",
                         "group-data-[hover=true]:border-primary",
                         //selected
-                        "group-data-[selected=true]:ml-[24px]",
+                        "group-data-[selected=true]:ml-[26px]",
                         // pressed
                         "group-data-[pressed=true]:w-6",
                         "group-data-[selected]:group-data-[pressed]:ml-4",
