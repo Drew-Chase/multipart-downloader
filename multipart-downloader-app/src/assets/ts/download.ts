@@ -10,6 +10,15 @@ export type DownloadProgress = {
     bytes_per_second: number;
 }
 
+export enum DownloadStatus
+{
+    Idle = "Idle",
+    Downloading = "Downloading",
+    Paused = "Paused",
+    Completed = "Completed",
+    Error = "Error",
+}
+
 export default class Download
 {
     public readonly url: string;
@@ -28,15 +37,15 @@ export default class Download
         const downloadEvent = new Channel<DownloadProgress>();
         downloadEvent.onmessage = (event) =>
         {
-            console.log(event);
             onUpdate(event);
         };
         await invoke("download", {
             url: url,
             parts: this.settings[SettingsTab.Networking].splitPartsCount,
             allocate: this.settings[SettingsTab.Storage].preallocateSpace,
-            filepath: filename,
-            on_event: Channel<DownloadProgress>
+            directory: this.settings[SettingsTab.Storage].downloadsDirectory,
+            filename,
+            onEvent: downloadEvent
         });
     }
 
@@ -55,3 +64,4 @@ export default class Download
 
 
 }
+
