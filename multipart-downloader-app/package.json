@@ -16,7 +16,7 @@
 		"@tauri-apps/plugin-dialog": "2.2.0",
 		"@tauri-apps/plugin-fs": "2.2.0",
 		"@tauri-apps/plugin-log": "~2.2.0",
-		"@tauri-apps/plugin-shell": "2.2.0",
+		"@tauri-apps/plugin-shell": "2.2.1",
 		"framer-motion": "11.15.0",
 		"jquery": "3.7.1",
 		"react": "19.0.0",
