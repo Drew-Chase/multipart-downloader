@@ -8,7 +8,7 @@ repository = "https://github.com/drew-chase/multipart-downloader"
 autoexamples = true
 
 [dependencies]
-tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.43.1", features = ["macros", "rt-multi-thread"] }
 reqwest = { version = "0.12.12", features = ["stream"] }
 anyhow = "1.0.95"
 log = { version = "0.4.22", optional = true }
