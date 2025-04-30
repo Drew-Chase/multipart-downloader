@@ -10,6 +10,6 @@ autoexamples = true
 [dependencies]
 clap = { version = "4.5.26", features = ["derive", "string", "error-context", "color", "suggestions", "usage", "help", "wrap_help"] }
 multipart-downloader-lib = { path = "../multipart-downloader-lib" }
-tokio = { version = "1.43.0", features = ["macros"] }
+tokio = { version = "1.43.1", features = ["macros"] }
 anyhow = "1.0.95"
 colored = { version = "3.0.0" }
